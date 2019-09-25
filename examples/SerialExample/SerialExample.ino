@@ -1,20 +1,17 @@
-#include <Arduino.h>
-#include <ESP8266WiFi.h>
-#include "IPGeolocation.h"
 
 // Replace with your wifi credentials
-const char * ssid = "***********";
-const char * password = "***********";
+const char * ssid = "DUSHYANT";
+const char * password = "ahuja987";
 
 // Get and API Key by registering on
-// https://ipgeolocation.io
+// https://openweathermap.org/api
 
 
 
-String Key = "*************";
+String Key = "15121d64b58b9086439fed7f00050c04";
 
-
-IPGeolocation location(Key);
+weatherData w;
+SimpleWeather weather(Key, "London,uk");
 
 
 void setup() {
@@ -31,10 +28,8 @@ void setup() {
 }
 
 void loop() {
-  location.updateStatus();
-  Serial.println(location.getTimezone());
-  Serial.println(location.getOffset());
-  Serial.println(location.getResponse());
+  weather.updateStatus(&w);
+  Serial.println()
   delay(600000);       // Wait for 600 seconds
   // put your main code here, to run repeatedly:
 }
