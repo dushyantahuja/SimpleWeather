@@ -22,11 +22,11 @@ struct weatherData{
   int rain;
 };
 
-class SimpleWeather
+class OpenWeather
 {
   public:
-    SimpleWeather(String Key, String City); 
-    SimpleWeather(String Key, String City, boolean forecast);
+    OpenWeather(String Key, String City); 
+    OpenWeather(String Key, String City, boolean forecast);
     void updateStatus(weatherData *w);
   private:
     String _Key;

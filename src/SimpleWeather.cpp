@@ -7,18 +7,18 @@
 //const char fingerprint[] PROGMEM = "AC 06 70 3C 86 04 60 22 06 BE E5 11 A5 37 DB 7D 86 92 4E 1C"; // fingerprint
 
 const size_t capacity = 2*JSON_ARRAY_SIZE(1) + 3*JSON_OBJECT_SIZE(1) + 2*JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(4) + JSON_OBJECT_SIZE(5) + 3*JSON_OBJECT_SIZE(8) + 350;
-const char *host = "api.openweathermap.org";
+const char *openweather = "api.openweathermap.org";
 const int httpsPort = 443;  //HTTPS= 443 and HTTP = 80
 WiFiClientSecure httpsClient;
 
-SimpleWeather::SimpleWeather(String Key, String City){
+OpenWeather::OpenWeather(String Key, String City){
   _Key = Key;
   _City = City;
   _forecast = false;
   _url = "/data/2.5/weather?q=" + _City + "&appid=" + _Key +"&units=metric";
 }
 
-SimpleWeather::SimpleWeather(String Key, String City, boolean forecast){
+OpenWeather::OpenWeather(String Key, String City, boolean forecast){
   _Key = Key;
   _City = City;
   _forecast = forecast;
@@ -28,7 +28,7 @@ SimpleWeather::SimpleWeather(String Key, String City, boolean forecast){
     _url = "/data/2.5/forecast?q=" + _City + "&appid=" + _Key +"&units=metric&cnt=1";
 }
 
-void SimpleWeather::updateStatus(weatherData *w){
+void OpenWeather::updateStatus(weatherData *w){
   //httpsClient.setFingerprint(fingerprint);
   httpsClient.setInsecure();
   httpsClient.setTimeout(15000); // 15 Seconds
@@ -36,17 +36,17 @@ void SimpleWeather::updateStatus(weatherData *w){
 
   //Serial.print("HTTPS Connecting");
   int r=0; //retry counter
-  while((!httpsClient.connect(host, httpsPort)) && (r < 30)){
+  while((!httpsClient.connect(openweather, httpsPort)) && (r < 30)){
       delay(100);
       Serial.print(".");
       r++;
   }
 
   Serial.print("requesting URL: ");
-  Serial.println(host+_url);
+  Serial.println(openweather+_url);
 
   httpsClient.print(String("GET ") + _url + " HTTP/1.1\r\n" +
-               "Host: " + host + "\r\n" +
+               "Host: " + openweather + "\r\n" +
                "Connection: close\r\n\r\n");
 
   Serial.println("request sent");
@@ -106,7 +106,7 @@ const char * password = "ahuja987";
 String Key = "15121d64b58b9086439fed7f00050c04";
 
 weatherData w;
-SimpleWeather weather(Key, "London,uk");
+OpenWeather weather(Key, "London,uk");
 
 
 void setup() {
@@ -125,6 +125,14 @@ void setup() {
 void loop() {
   weather.updateStatus(&w);
   Serial.println();
+  Serial.println(w.weather);
+  Serial.println(w.description);
+  Serial.println(w.id);
+  Serial.println(w.current_Temp);
+  Serial.println(w.min_temp);
+  Serial.println(w.max_temp);
+  Serial.println(w.humidity);
+  Serial.println(w.rain);
   delay(600000);       // Wait for 600 seconds
   // put your main code here, to run repeatedly:
 }
