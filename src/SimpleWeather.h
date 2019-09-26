@@ -26,6 +26,7 @@ class OpenWeather
 {
   public:
     OpenWeather(String Key, String City); 
+    OpenWeather(String Key, float lat, float long);
     OpenWeather(String Key, String City, boolean forecast);
     void updateStatus(weatherData *w);
   private:
