@@ -6,7 +6,7 @@
 
 //const char fingerprint[] PROGMEM = "AC 06 70 3C 86 04 60 22 06 BE E5 11 A5 37 DB 7D 86 92 4E 1C"; // fingerprint
 
-const size_t capacity = 2*JSON_ARRAY_SIZE(1) + 3*JSON_OBJECT_SIZE(1) + 2*JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(4) + JSON_OBJECT_SIZE(5) + 3*JSON_OBJECT_SIZE(8) + 350;
+const size_t capacity = 2*JSON_ARRAY_SIZE(1) + JSON_ARRAY_SIZE(2) + 6*JSON_OBJECT_SIZE(1) + 3*JSON_OBJECT_SIZE(2) + 2*JSON_OBJECT_SIZE(4) + JSON_OBJECT_SIZE(5) + 5*JSON_OBJECT_SIZE(8) + 570;
 const char *openweather = "api.openweathermap.org";
 const int httpsPort = 443;  //HTTPS= 443 and HTTP = 80
 WiFiClientSecure httpsClient;
@@ -25,7 +25,7 @@ OpenWeather::OpenWeather(String Key, String City, boolean forecast){
   if(!forecast)
     _url = "/data/2.5/weather?q=" + _City + "&appid=" + _Key +"&units=metric&cnt=1";
   else
-    _url = "/data/2.5/forecast?q=" + _City + "&appid=" + _Key +"&units=metric&cnt=1";
+    _url = "/data/2.5/forecast?q=" + _City + "&appid=" + _Key +"&units=metric&cnt=2";
 }
 
 void OpenWeather::updateStatus(weatherData *w){
@@ -62,7 +62,7 @@ void OpenWeather::updateStatus(weatherData *w){
 
   Serial.println("reply was:");
   Serial.println("==========");
-  httpsClient.readStringUntil('\n'); // The API sends an extra line with just a number. This breaks the JSON parsing, hence an extra read
+  //httpsClient.readStringUntil('\n'); // The API sends an extra line with just a number. This breaks the JSON parsing, hence an extra read
   while(httpsClient.connected()){
     _Response = httpsClient.readString();
     Serial.println(_Response); //Print response
@@ -73,22 +73,23 @@ void OpenWeather::updateStatus(weatherData *w){
     w->description = doc["weather"][0]["description"].as<String>();
     w->weather = doc["weather"][0]["main"].as<String>();
     w->id = doc["weather"][0]["id"].as<int>();
-    w->current_Temp = doc["main"]["temp"].as<int>();
-    w->min_temp = doc["main"]["temp_min"].as<int>();
-    w->max_temp = doc["main"]["temp_max"].as<int>();
-    w->humidity = doc["main"]["temp_max"].as<int>();
-    if(w->id <700) w->rain = doc["rain"]["1h"].as<int>();
+    w->current_Temp = doc["main"]["temp"].as<float>();
+    w->min_temp = doc["main"]["temp_min"].as<float>();
+    w->max_temp = doc["main"]["temp_max"].as<float>();
+    w->humidity = doc["main"]["temp_max"].as<float>();
+    if(w->id <700) w->rain = doc["rain"]["1h"].as<float>();
     else w->rain = 0;
   } else
   {
-    w->description = doc["list"][0]["weather"]["description"].as<String>();
-    w->weather = doc["list"][0]["weather"]["main"].as<String>();
-    w->id = doc["list"][0]["weather"]["id"].as<int>();
-    w->current_Temp = doc["list"][0]["main"]["temp"].as<int>();
-    w->min_temp = doc["list"][0]["main"]["temp_min"].as<int>();
-    w->max_temp = doc["list"][0]["main"]["temp_max"].as<int>();
-    w->humidity = doc["list"][0]["main"]["temp_max"].as<int>();
-    if(w->id <700) w->rain = doc["rain"]["1h"].as<int>();
+    // Currently set to get forecast 3 hours from now
+    w->description = doc["list"][1]["weather"][0]["description"].as<String>(); 
+    w->weather = doc["list"][1]["weather"][0]["main"].as<String>();
+    w->id = doc["list"][1]["weather"]["id"].as<int>();
+    w->current_Temp = doc["list"][1]["main"]["temp"].as<float>();
+    w->min_temp = doc["list"][1]["main"]["temp_min"].as<float>();
+    w->max_temp = doc["list"][1]["main"]["temp_max"].as<float>();
+    w->humidity = doc["list"][1]["main"]["temp_max"].as<float>();
+    if(w->id <700) w->rain = doc["list"][1]["rain"]["3h"].as<float>();
     else w->rain = 0;
   }
 }
@@ -107,6 +108,7 @@ String Key = "15121d64b58b9086439fed7f00050c04";
 
 weatherData w;
 OpenWeather weather(Key, "London,uk");
+OpenWeather forecast(Key, "London,uk",1);
 
 
 void setup() {
@@ -125,6 +127,17 @@ void setup() {
 void loop() {
   weather.updateStatus(&w);
   Serial.println();
+  Serial.println(w.weather);
+  Serial.println(w.description);
+  Serial.println(w.id);
+  Serial.println(w.current_Temp);
+  Serial.println(w.min_temp);
+  Serial.println(w.max_temp);
+  Serial.println(w.humidity);
+  Serial.println(w.rain);
+
+  Serial.println("Forecast");
+  forecast.updateStatus(&w);
   Serial.println(w.weather);
   Serial.println(w.description);
   Serial.println(w.id);

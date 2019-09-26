@@ -9,12 +9,10 @@ const char * password = "********";
 // Get and API Key by registering on
 // https://openweathermap.org/api
 
-
-
 String Key = "********";
 
-weatherData w;
 OpenWeather weather(Key, "London,uk");
+OpenWeather forecast(Key, "London,uk",1);
 
 
 void setup() {
@@ -31,8 +29,20 @@ void setup() {
 }
 
 void loop() {
+  weatherData w;
   weather.updateStatus(&w);
   Serial.println();
+  Serial.println(w.weather);
+  Serial.println(w.description);
+  Serial.println(w.id);
+  Serial.println(w.current_Temp);
+  Serial.println(w.min_temp);
+  Serial.println(w.max_temp);
+  Serial.println(w.humidity);
+  Serial.println(w.rain);
+
+  Serial.println("Forecast");
+  forecast.updateStatus(&w);
   Serial.println(w.weather);
   Serial.println(w.description);
   Serial.println(w.id);
