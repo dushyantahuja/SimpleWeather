@@ -1,7 +1,7 @@
 {
   "name": "SimpleWeather",
-  "keywords": "Weather, openweathermap",
-  "description": "Library to get current weather and forecast from openweathermap",
+  "keywords": "Weather, openweathermap, darksky, forecast.io",
+  "description": "Library to get current weather and forecast from openweather or darksky",
   "repository":
   {
     "type": "git",
