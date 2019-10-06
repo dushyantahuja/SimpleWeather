@@ -26,33 +26,26 @@ class OpenWeather
 {
   public:
     OpenWeather(String Key, String City); 
-    OpenWeather(String Key, float lat, float long);
+    OpenWeather(String Key, float lat, float longi);
     OpenWeather(String Key, String City, boolean forecast);
     void updateStatus(weatherData *w);
+    String getResponse();
   private:
-    String _Key;
-    String _City;
-    String _TimeZone;
-    int _offset;
     String _Response;
     String _url;
     boolean _forecast;
 };
 
-/*class Darksky
+class Darksky
 {
   public:
-    Darksky(String Key, String City); 
-    Darksky(String Key, String City, boolean forecast);
+    Darksky(String Key, float lat, float longi);
+    Darksky(String Key, float lat, float longi, unsigned long timestamp);
     void updateStatus(weatherData *w);
+    String getResponse();
   private:
-    String _Key;
-    String _City;
-    String _TimeZone;
-    int _offset;
     String _Response;
     String _url;
-    boolean _forecast;
-};*/
+};
 
 #endif
