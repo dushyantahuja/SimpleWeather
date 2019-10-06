@@ -114,7 +114,7 @@ Darksky::Darksky(String Key, float lat, float longi){
   _url = "/forecast/" + Key +"/" + String(lat) + "," + String(longi) +"?exclude=minutely,hourly,daily,alerts,flags&units=si";
 }
 
-Darksky(String Key, float lat, float longi, unsigned long timestamp){
+Darksky::Darksky(String Key, float lat, float longi, unsigned long timestamp){
   _url = "/forecast/" + Key +"/" + String(lat) + "," + String(longi) +"," + String(timestamp) + "?exclude=minutely,hourly,daily,alerts,flags&units=si";
 }
 
