@@ -42,6 +42,8 @@ class Darksky
     Darksky(String Key, float lat, float longi);
     Darksky(String Key, float lat, float longi, unsigned long timestamp);
     void updateStatus(weatherData *w);
+    void updateURL(String Key, float lat, float longi, unsigned long timestamp);
+    void updateURL(String Key, float lat, float longi);
     String getResponse();
   private:
     String _Response;

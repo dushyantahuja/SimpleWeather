@@ -4,11 +4,17 @@
 #include <ArduinoJson.h>
 #include "SimpleWeather.h"
 
-//const char fingerprint[] PROGMEM = "AC 06 70 3C 86 04 60 22 06 BE E5 11 A5 37 DB 7D 86 92 4E 1C"; // fingerprint
+#define DEBUG
 
-const char *openweather = "api.openweathermap.org";
-const int httpsPort = 443;  //HTTPS= 443 and HTTP = 80
-WiFiClientSecure httpsClient;
+#ifndef DEBUG_PRINT
+  #ifdef DEBUG
+    #define DEBUG_PRINT(x)  Serial.println (x)
+  #else
+    #define DEBUG_PRINT(x)
+  #endif
+#endif
+
+//const char fingerprint[] PROGMEM = "6E 33 1E DC B8 84 7C D7 40 B2 2C D2 80 F2 4A 38 1B D1 1D CE 6E FA 63 B9 91 FB 4A E9 58 FC 46 37"; // Darksky fingerprint
 
 OpenWeather::OpenWeather(String Key, String City){
   //_Key = Key;
@@ -36,6 +42,9 @@ OpenWeather::OpenWeather(String Key, String City, boolean forecast){
 
 void OpenWeather::updateStatus(weatherData *w){
   //httpsClient.setFingerprint(fingerprint);
+  const char *openweather = "api.openweathermap.org";
+  const int httpsPort = 443;  //HTTPS= 443 and HTTP = 80
+  WiFiClientSecure httpsClient;
   const size_t capacity = 2*JSON_ARRAY_SIZE(1) + JSON_ARRAY_SIZE(2) + 6*JSON_OBJECT_SIZE(1) + 3*JSON_OBJECT_SIZE(2) + 2*JSON_OBJECT_SIZE(4) + JSON_OBJECT_SIZE(5) + 5*JSON_OBJECT_SIZE(8) + 570;
   httpsClient.setInsecure();
   httpsClient.setTimeout(15000); // 15 Seconds
@@ -49,30 +58,30 @@ void OpenWeather::updateStatus(weatherData *w){
       r++;
   }
 
-  Serial.print("requesting URL: ");
-  Serial.println(openweather+_url);
+  DEBUG_PRINT("requesting URL: ");
+  DEBUG_PRINT(openweather+_url);
 
   httpsClient.print(String("GET ") + _url + " HTTP/1.1\r\n" +
                "Host: " + openweather + "\r\n" +
                "Connection: close\r\n\r\n");
 
-  Serial.println("request sent");
+  DEBUG_PRINT("request sent");
 
   while (httpsClient.connected()) {
-    String line = httpsClient.readStringUntil('\n');
-    if (line == "\r") {
-      Serial.println("headers received");
-      Serial.println(line);
+    _Response = httpsClient.readStringUntil('\n');
+    if (_Response == "\r") {
+      DEBUG_PRINT("headers received");
+      DEBUG_PRINT(_Response);
       break;
     }
   }
 
-  Serial.println("reply was:");
-  Serial.println("==========");
+  DEBUG_PRINT("reply was:");
+  DEBUG_PRINT("==========");
   //httpsClient.readStringUntil('\n'); // The API sends an extra line with just a number. This breaks the JSON parsing, hence an extra read
   while(httpsClient.connected()){
     _Response = httpsClient.readString();
-    Serial.println(_Response); //Print response
+    DEBUG_PRINT(_Response); //Print response
   }
   DynamicJsonDocument doc(capacity);
   deserializeJson(doc,_Response);
@@ -107,8 +116,13 @@ String OpenWeather::getResponse(){
 
 // DarkSky API
 
-const char *darksky = "api.darksky.net";
+void Darksky::updateURL(String Key, float lat, float longi, unsigned long timestamp){
+  _url = "/forecast/" + Key +"/" + String(lat) + "," + String(longi) +"," + String(timestamp) + "?exclude=minutely,hourly,daily,alerts,flags&units=si";
+}
 
+void Darksky::updateURL(String Key, float lat, float longi){
+  _url = "/forecast/" + Key +"/" + String(lat) + "," + String(longi) +"?exclude=minutely,hourly,daily,alerts,flags&units=si";
+}
 
 Darksky::Darksky(String Key, float lat, float longi){
   _url = "/forecast/" + Key +"/" + String(lat) + "," + String(longi) +"?exclude=minutely,hourly,daily,alerts,flags&units=si";
@@ -120,43 +134,49 @@ Darksky::Darksky(String Key, float lat, float longi, unsigned long timestamp){
 
 
 void Darksky::updateStatus(weatherData *w){
+  const char *darksky = "api.darksky.net";
+  const int httpsPort = 443;  //HTTPS= 443 and HTTP = 80
+  WiFiClientSecure httpsClient;
   //httpsClient.setFingerprint(fingerprint);
   httpsClient.setInsecure();
   httpsClient.setTimeout(15000); // 15 Seconds
-  delay(1000);
+  //delay(1000);
 
   //Serial.print("HTTPS Connecting");
   int r=0; //retry counter
-  while((!httpsClient.connect(openweather, httpsPort)) && (r < 30)){
+  while((!httpsClient.connect(darksky, httpsPort)) && (r < 30)){
       delay(100);
-      Serial.print(".");
+      DEBUG_PRINT(".");
       r++;
   }
 
-  Serial.print("requesting URL: ");
-  Serial.println(darksky+_url);
+  DEBUG_PRINT("requesting URL: ");
+  DEBUG_PRINT(darksky+_url);
+  DEBUG_PRINT(String("GET ") + _url + " HTTP/1.1\r\n" +
+               "Host: " + darksky + "\r\n" +
+               "Connection: close\r\n\r\n");
 
   httpsClient.print(String("GET ") + _url + " HTTP/1.1\r\n" +
                "Host: " + darksky + "\r\n" +
                "Connection: close\r\n\r\n");
 
-  Serial.println("request sent");
+  DEBUG_PRINT("request sent");
 
   while (httpsClient.connected()) {
-    String line = httpsClient.readStringUntil('\n');
-    if (line == "\r") {
-      Serial.println("headers received");
-      Serial.println(line);
+    _Response = httpsClient.readStringUntil('\n');
+    if (_Response == "\r") {
+      DEBUG_PRINT("headers received");
+      DEBUG_PRINT(_Response);
       break;
     }
   }
 
-  Serial.println("reply was:");
-  Serial.println("==========");
+  DEBUG_PRINT("reply was:");
+  DEBUG_PRINT("==========");
   //httpsClient.readStringUntil('\n'); // The API sends an extra line with just a number. This breaks the JSON parsing, hence an extra read
   while(httpsClient.connected()){
     _Response = httpsClient.readString();
-    Serial.println(_Response); //Print response
+    DEBUG_PRINT(_Response); //Print response
   }
   const size_t capacity = JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(19) + 350;
   DynamicJsonDocument doc(capacity);
