@@ -91,6 +91,7 @@ void OpenWeather::updateStatus(weatherData *w){
   deserializeJson(doc,_Response);
   if(!_forecast){
     w->description = doc["weather"][0]["description"].as<String>();
+    w->icon = doc["weather"][0]["icon"].as<String>();
     w->weather = doc["weather"][0]["main"].as<String>();
     w->id = doc["weather"][0]["id"].as<int>();
     w->current_Temp = doc["main"]["temp"].as<float>();
@@ -104,6 +105,7 @@ void OpenWeather::updateStatus(weatherData *w){
     // Currently set to get forecast 3 hours from now
     w->description = doc["list"][1]["weather"][0]["description"].as<String>(); 
     w->weather = doc["list"][1]["weather"][0]["main"].as<String>();
+    w->icon = doc["weather"][0]["icon"].as<String>();
     w->id = doc["list"][1]["weather"]["id"].as<int>();
     w->current_Temp = doc["list"][1]["main"]["temp"].as<float>();
     w->min_temp = doc["list"][1]["main"]["temp_min"].as<float>();

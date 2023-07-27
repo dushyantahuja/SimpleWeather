@@ -18,6 +18,7 @@
 struct weatherData{
   String weather;
   String description;
+  String icon;
   int id;
   float current_Temp;
   float min_temp;
